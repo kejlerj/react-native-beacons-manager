@@ -27,6 +27,13 @@ import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import android.location.Location;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
@@ -66,6 +73,9 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     private NotificationManager mNotificationManager;
     private boolean isForegroundServiceStarted = false;
 
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocationCallback;
+
     public BeaconsAndroidModule(ReactApplicationContext reactContext) {
         super(reactContext);
         Log.d(LOG_TAG, "BeaconsAndroidModule - started");
@@ -80,7 +90,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         // Fix: may not be called after consumers are already bound beacon
         if (!mBeaconManager.isAnyConsumerBound()) {
             Notification.Builder builder = this.buildNotification();
-//            mBeaconManager.enableForegroundServiceScanning(builder.build(), 456);
+            //mBeaconManager.enableForegroundServiceScanning(builder.build(), 456);
             // For the above foreground scanning service to be useful, you need to disable
             // JobScheduler-based scans (used on Android 8+) and set a fast background scan
             // cycle that would otherwise be disallowed by the operating system.
@@ -336,8 +346,9 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
 
             sendDebug(new JSONObject() {{
                 try {
-                    put("device", "android");
-                    put("message", "EnterRegion");
+                    //put("device", "android");
+                    //put("message", "EnterRegion");
+                    put("M", "ER");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -356,8 +367,9 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             sendEvent(mReactContext, "regionDidExit", createMonitoringResponse(region));
             sendDebug(new JSONObject() {{
                 try {
-                    put("device", "android");
-                    put("message", "ExitRegion");
+                    //put("device", "android");
+                    //put("message", "ExitRegion");
+                    put("M", "XR");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -377,8 +389,9 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             Log.i(LOG_TAG, "didDetermineStateForRegion");
             sendDebug(new JSONObject() {{
                 try {
-                    put("device", "android");
-                    put("message", "DetermineState");
+                    //put("device", "android");
+                    //put("message", "DetermineState");
+                    put("M", "DS");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -444,6 +457,8 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             for (final Beacon beacon : beacons) {
                 beaconArray.put(new JSONObject(){{
                     try {
+                        put("name", beacon.getBluetoothName());
+                        put("bluetoothAddress", beacon.getBluetoothAddress());
                         put("uuid", beacon.getId1() != null ? beacon.getId1().toString() : "");
                         put("major", beacon.getId2() != null ? beacon.getId2().toInt() : 0);
                         put("minor", beacon.getId3() != null ? beacon.getId3().toInt() : 0);
@@ -481,9 +496,11 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             final JSONArray finalSortedBeaconArray = sortedBeaconArray;
             sendDebug(new JSONObject() {{
                 try {
-                    put("device", "android");
-                    put("message", "didRangeBeacons");
-                    put("beacons", finalSortedBeaconArray);
+                    //put("device", "android");
+                    //put("message", "didRangeBeacons");
+                    //put("beacons", finalSortedBeaconArray);
+                    put("M", "DB");
+                    put("B", finalSortedBeaconArray.length());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -502,6 +519,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             final JSONObject finalNearestBeacon = nearestBeacon;
 
             if(finalNearestBeacon != null) {
+
                 sendBeacon(new JSONObject() {{
                     try {
                         put("uuid", finalNearestBeacon.get("uuid"));
@@ -517,9 +535,10 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
 
             sendDebug(new JSONObject() {{
                 try {
-                    put("device", "android");
-                    put("message", "SendBeacon");
-                    put("beacon", finalNearestBeacon);
+                    //put("device", "android");
+                    //put("message", "SendBeacon");
+                    //put("beacon", finalNearestBeacon);
+                    put("message", "SB");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -572,6 +591,8 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         WritableArray a = new WritableNativeArray();
         for (Beacon beacon : beacons) {
             WritableMap b = new WritableNativeMap();
+            b.putString("name", beacon.getBluetoothName());
+            b.putString("bluetoothAddress", beacon.getBluetoothAddress());
             b.putString("uuid", beacon.getId1() != null ? beacon.getId1().toString() : "");
             if (beacon.getIdentifiers().size() > 2) {
                 b.putInt("major", beacon.getId2() != null ? beacon.getId2().toInt() : 0);
@@ -604,6 +625,33 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         } else {
             return "far";
         }
+    }
+
+    @ReactMethod
+    public void requestLocationUpdatesBeacon(final Callback resolve) {
+
+        LocationRequest locationRequest = LocationRequest.create()
+                        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                        .setInterval(10000)
+                        .setFastestInterval(10000);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
+                    Log.d("TestService", location.getLatitude() + " " + location.getLongitude());
+                    WritableMap map = new WritableNativeMap();
+                    map.putDouble("latitude", location.getLatitude());
+                    map.putDouble("longitude", location.getLongitude());
+                    resolve.invoke(map);
+                    mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+                }
+            }
+        };
+
+        mFusedLocationClient.requestLocationUpdates(locationRequest, mLocationCallback, null);
     }
 
     @ReactMethod
@@ -660,6 +708,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             bindManager();
             isForegroundServiceStarted = true;
         }
+
         // Hack: delay a bit to wait beacon service connected to prevent error:
         // The BeaconManager is not bound to the service.  Call beaconManager.bind(BeaconConsumer consumer) and wait for a callback to onBeaconServiceConnect()
         new android.os.Handler().postDelayed(
@@ -673,7 +722,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
                     );
                     try {
                         mBeaconManager.startMonitoringBeaconsInRegion(region);
-                        mBeaconManager.startRangingBeaconsInRegion(region);
+                        //mBeaconManager.startRangingBeaconsInRegion(region);
                         MyRegion = region;
                         resolve.invoke();
                     } catch (Exception e) {
@@ -757,6 +806,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
             return;
 
         @SuppressLint("WrongConstant") NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "Smart_Space_Pro_Channel", android.app.NotificationManager.IMPORTANCE_HIGH);
+        //channel.setSound(null, null);
         channel.setDescription("Smart_Space_Pro_Channel_Description");
         channel.enableLights(true);
         channel.enableVibration(true);
@@ -802,9 +852,12 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     }
 
     private Notification.Builder buildNotification() {
+
         Notification.Builder builder = new Notification.Builder(mApplicationContext);
         builder.setSmallIcon(mApplicationContext.getResources().getIdentifier("ic_notification", "mipmap", mApplicationContext.getPackageName()));
         builder.setContentTitle("Scanning for Beacons");
+        builder.setOngoing(true);
+        builder.setStyle(new Notification.BigTextStyle().bigText("Scanning for Beacons"));
         Class intentClass = getMainActivityClass();
         Intent intent = new Intent(mApplicationContext, intentClass);
         PendingIntent pendingIntent = PendingIntent.getActivity(mApplicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -812,8 +865,9 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("My Notification Channel ID",
-                    "My Notification Name", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("My Notification Channel Description");
+                    "Beacon service", NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Service de détection de beacon");
+            //channel.setSound(null, null);
             mNotificationManager.createNotificationChannel(channel);
             builder.setChannelId(channel.getId());
         }

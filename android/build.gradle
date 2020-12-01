@@ -36,4 +36,6 @@ dependencies {
     compile 'org.altbeacon:android-beacon-library:2.16.3'
     compile "com.android.support:appcompat-v7:27.1.1"
     compile "com.android.support:support-v4:27.1.1"
+    compile 'com.google.android.gms:play-services-maps:15.0.1'
+    compile 'com.google.android.gms:play-services-location:15.0.1'
 }
