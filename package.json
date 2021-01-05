@@ -3,15 +3,15 @@
   "_id": "@nois/react-native-beacons-manager@1.6.3",
   "_inBundle": false,
   "_integrity": "sha512-MgPwA9+awg/0duADYNR+qTrEonzEZ72L8G2VmZMB/c86Iv5RXZLhAX7+ydqgy5IaLxdZ0hfU3wSeuW1GtvF1aQ==",
-  "_location": "/@nois/react-native-beacons-manager",
+  "_location": "react-native-beacons-manager",
   "_phantomChildren": {},
   "_requested": {
     "type": "tag",
     "registry": true,
-    "raw": "@nois/react-native-beacons-manager",
-    "name": "@nois/react-native-beacons-manager",
-    "escapedName": "@nois%2freact-native-beacons-manager",
-    "scope": "@nois",
+    "raw": "react-native-beacons-manager",
+    "name": "react-native-beacons-manager",
+    "escapedName": "react-native-beacons-manager",
+    "scope": "",
     "rawSpec": "",
     "saveSpec": null,
     "fetchSpec": "latest"
@@ -55,7 +55,7 @@
     "npm": ">=5.3.0",
     "yarn": ">=1.5.1"
   },
-  "homepage": "https://github.com/MacKentoch/react-native-beacons-manager#readme",
+  "homepage": "https://github.com/kejlerj/react-native-beacons-manager#readme",
   "keywords": [
     "react-native",
     "react-component",
@@ -72,7 +72,7 @@
   ],
   "license": "MIT",
   "main": "index.js",
-  "name": "@nois/react-native-beacons-manager",
+  "name": "react-native-beacons-manager",
   "nativePackage": true,
   "peerDependencies": {
     "react": ">=15.4.2",
@@ -80,7 +80,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MacKentoch/react-native-beacons-manager.git"
+    "url": "git+https://github.com/kejlerj/react-native-beacons-manager.git"
   },
   "scripts": {
     "flow": "flow",
