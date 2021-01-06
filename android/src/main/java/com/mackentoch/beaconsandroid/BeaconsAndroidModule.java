@@ -888,7 +888,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         return new NotificationCompat.Builder(mApplicationContext, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Scanning for Beacons")
                 .setContentText("Service de détection de beacon")
-                .setSmallIcon(mApplicationContext.getResources().getIdentifier("ic_notification", "mipmap", mApplicationContext.getPackageName()))
+                .setSmallIcon(mApplicationContext.getResources().getIdentifier("ic_launcher", "mipmap", mApplicationContext.getPackageName()))
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .build();
