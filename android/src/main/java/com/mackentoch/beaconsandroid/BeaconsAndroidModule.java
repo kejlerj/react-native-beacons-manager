@@ -93,7 +93,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24")); // AltBeacon
         mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24")); // IBeacon
         // mBeaconManager.setDebug(false);
-        mNotificationManager = (NotificationManager) mApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager = (NotificationManager) mApplicationContext.getSystemService(NotificationManager.class);
         // Fix: may not be called after consumers are already bound beacon
         if (!mBeaconManager.isAnyConsumerBound()) {
             NotificationCompat.Builder builder = this.buildNotification();
@@ -874,14 +874,15 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
                     "Foreground Service Channel",
                     NotificationManager.IMPORTANCE_HIGH
             );
+            // NotificationManager manager = getSystemService(NotificationManager.class);
             mNotificationManager.createNotificationChannel(serviceChannel);
         }
     }
 
     private NotificationCompat.Builder buildNotification() {
         createNotificationChannel();
-        Class intentClass = getMainActivityClass();
-        Intent notificationIntent = new Intent(mApplicationContext, intentClass);
+        //Class intentClass = getMainActivityClass();
+        Intent notificationIntent = new Intent(mApplicationContext, MainActivity.class);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(mApplicationContext,
                 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
