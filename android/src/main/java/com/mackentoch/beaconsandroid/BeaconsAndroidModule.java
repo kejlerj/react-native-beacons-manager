@@ -96,7 +96,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         mNotificationManager = (NotificationManager) mApplicationContext.getSystemService(NotificationManager.class);
         // Fix: may not be called after consumers are already bound beacon
         if (!mBeaconManager.isAnyConsumerBound()) {
-            NotificationCompat.Builder builder = this.buildNotification();
+            Notification notif = this.buildNotification();
             //mBeaconManager.enableForegroundServiceScanning(builder.build(), 456);
             // For the above foreground scanning service to be useful, you need to disable
             // JobScheduler-based scans (used on Android 8+) and set a fast background scan
@@ -114,7 +114,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new ScanFilter.Builder();
             builder.setManufacturerData(0x004c, new byte[]{});
-            ScanFilter filter = builder.build();
+            ScanFilter filter = notif;
         }
     }
 
@@ -716,11 +716,11 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
 
     @ReactMethod
     public void startBeaconServices(final String regionId, final String beaconUuid, final int minor, final int major, final Callback resolve, final Callback reject) {
-        final NotificationCompat.Builder builder = this.buildNotification();
+        final Notification notif = this.buildNotification();
         Log.e(LOG_TAG, "startBeaconServices ");
         if (!isForegroundServiceStarted) {
             unbindManager();
-            mBeaconManager.enableForegroundServiceScanning(builder.build(), 456);
+            mBeaconManager.enableForegroundServiceScanning(notif, 456);
             bindManager();
             isForegroundServiceStarted = true;
         }
@@ -879,9 +879,10 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         }
     }
 
-    private NotificationCompat.Builder buildNotification() {
+    private Notification buildNotification() {
         createNotificationChannel();
         Class intentClass = getMainActivityClass();
+        Log.d(LOG_TAG, intentClass.toString());
         Intent notificationIntent = new Intent(mApplicationContext, intentClass);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(mApplicationContext,
@@ -892,7 +893,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
                 .setContentText("Service de détection de beacon")
                 .setSmallIcon(mApplicationContext.getResources().getIdentifier("ic_notification", "mipmap", mApplicationContext.getPackageName()))
                 .setContentIntent(pendingIntent)
-                .setOngoing(true);
-                //.build();
+                .setOngoing(true)
+                .build();
     }
 }
