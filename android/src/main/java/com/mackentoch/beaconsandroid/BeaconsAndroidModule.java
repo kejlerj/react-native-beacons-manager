@@ -114,7 +114,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             builder = new ScanFilter.Builder();
             builder.setManufacturerData(0x004c, new byte[]{});
-            ScanFilter filter = notif;
+            ScanFilter filter = builder.build();
         }
     }
 
