@@ -1,5 +1,4 @@
-package com.tcpblue.foregroundservice;
-
+ package com.mackentoch.beaconsandroid;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
