@@ -882,7 +882,7 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
     private NotificationCompat.Builder buildNotification() {
         createNotificationChannel();
         //Class intentClass = getMainActivityClass();
-        Intent notificationIntent = new Intent(mApplicationContext, MainActivity.class);
+        Intent notificationIntent = new Intent(mApplicationContext, intentClass);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(mApplicationContext,
                 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
